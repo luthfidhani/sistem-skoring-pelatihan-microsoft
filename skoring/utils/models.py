@@ -1,9 +1,9 @@
+import os
 import numpy as np 
 import pandas as pd
-import os
+from pytrends.request import TrendReq
 from sklearn.feature_extraction.text import TfidfVectorizer 
 from sklearn.metrics.pairwise import cosine_similarity 
-from pytrends.request import TrendReq 
 
 pytrend = TrendReq() 
 
@@ -12,7 +12,7 @@ experience_dir = os.path.abspath(os.path.join(base_dir, 'datasets/Experience.xls
 catalog_train = os.path.abspath(os.path.join(base_dir, 'datasets/TrainingCatalog.xlsx'))
 
 experience = pd.read_excel(experience_dir) 
-experience = np.array(experience)[:,2] 
+experience = np.array(experience).flatten()
 event_name = [] 
 for i in experience: 
     event_name.append(i.replace("\xa0", "")) 

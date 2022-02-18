@@ -22,22 +22,65 @@
             </div>
         </div>
         <div class="container">
-            <form action="{% url 'analyze' %}" method="post">
-                <div class="mb-3">
-                    <label for="query" class="form-label">Query</label>
-                    <input type="text" class="form-control" required name="query" value="">
-                </div>
-                <div class="mb-3">
-                    <label for="topic" class="form-label">Topik</label>
-                    <input type="text" class="form-control" required name="topic">
-                </div>
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary" @click="analyze = 'Loading'">[[analyze]]</button>
-            </form>
-            {% if result %}
-            <h5 class="text-center mt-5">Query : {{query}} | Topik : {{topic}}</h5>
-            <h1 class="text-center mt-5">{{result}}</h1>
+            {% if data %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>{{data}}</strong> has been added
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             {% endif %}
+
+            <ul class="nav nav-pills nav-fill mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pills-analyze-tab" data-bs-toggle="pill"
+                        data-bs-target="#pills-analyze" type="button" role="tab" aria-controls="pills-analyze"
+                        aria-selected="true">Analyze</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-add-object-tab" data-bs-toggle="pill"
+                        data-bs-target="#pills-add-object" type="button" role="tab" aria-controls="pills-add-object"
+                        aria-selected="false">Add Object</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="pills-analyze" role="tabpanel"
+                    aria-labelledby="pills-analyze-tab">
+                    <form action="{% url 'analyze' %}" method="post">
+                        <div class="mb-3">
+                            <label for="query" class="form-label">Query</label>
+                            <input type="text" class="form-control" name="query" value="">
+                        </div>
+                        <div class="mb-3">
+                            <label for="topic" class="form-label">Topik</label>
+                            <input type="text" class="form-control" name="topic">
+                        </div>
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary" @click="analyze = 'Loading'">[[analyze]]</button>
+                    </form>
+                    {% if result %}
+                    <h5 class="text-center mt-5">Query : {{query}} | Topik : {{topic}}</h5>
+                    <h1 class="text-center mt-5">{{result}}</h1>
+                    {% endif %}
+                </div>
+                <div class="tab-pane fade" id="pills-add-object" role="tabpanel" aria-labelledby="pills-add-object-tab">
+                    <form action="{% url 'add' %}" method="post">
+                        <div class="mb-3">
+                            <label for="query" class="form-label">Query</label>
+                            <input type="text" class="form-control" name="query" value="">
+                        </div>
+                        <div class="mb-3">
+                            <label for="topic" class="form-label">Topik</label>
+                            <input type="text" class="form-control" name="topic">
+                        </div>
+                        {% csrf_token %}
+                        <div>
+                            
+                            <p><strong class="text-danger">*</strong> You can add one or both at once</p>
+                        </div>
+                        <button type="submit" class="btn btn-primary" @click="submit = 'Loading'">[[submit]]</button>
+                    </form>
+                </div>
+            </div>
+
 
         </div>
     </div>
@@ -54,6 +97,7 @@
             delimiters: ["[[", "]]"],
             data: {
                 analyze: "Analyze",
+                submit: "Submit",
             },
         });
     </script>
