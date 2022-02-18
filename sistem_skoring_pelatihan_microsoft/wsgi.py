@@ -11,6 +11,8 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sistem_skoring_pelatihan_microsoft.settings')
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE", "sistem_skoring_pelatihan_microsoft.settings"
+)
 
 application = get_wsgi_application()
