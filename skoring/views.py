@@ -1,4 +1,5 @@
 from django.shortcuts import redirect, render
+from django.views.decorators.csrf import csrf_exempt 
 from skoring.utils.ai_models import train
 from skoring.utils.data_models import add_training_catalog, add_experience
 
@@ -6,7 +7,7 @@ from skoring.utils.data_models import add_training_catalog, add_experience
 def index(request):
     return render(request, "skoring/index.html")
 
-
+@csrf_exempt
 def analyze(request):
     try:
         query = request.POST["query"]
@@ -18,11 +19,11 @@ def analyze(request):
 
             return render(request, "skoring/index.html", data)
         return redirect("index")
-        
+
     except Exception:
         return redirect("index")
 
-
+@csrf_exempt
 def add(request):
     try:
         training_catalog = request.POST["training_catalog"]
