@@ -25,14 +25,14 @@
             <form action="{% url 'analyze' %}" method="post">
                 <div class="mb-3">
                     <label for="query" class="form-label">Query</label>
-                    <input type="text" class="form-control" name="query">
+                    <input type="text" class="form-control" required name="query" value="">
                 </div>
                 <div class="mb-3">
                     <label for="topic" class="form-label">Topik</label>
-                    <input type="text" class="form-control" name="topic">
+                    <input type="text" class="form-control" required name="topic">
                 </div>
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Analisis</button>
+                <button type="submit" class="btn btn-primary" @click="analyze = 'Loading'">[[analyze]]</button>
             </form>
             {% if result %}
             <h5 class="text-center mt-5">Query : {{query}} | Topik : {{topic}}</h5>
@@ -53,7 +53,7 @@
             el: "#vue-app",
             delimiters: ["[[", "]]"],
             data: {
-                search: "Search",
+                analyze: "Analyze",
             },
         });
     </script>
