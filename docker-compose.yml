@@ -1,12 +1,10 @@
 version: '3.8'
 services:
-  web:
-    container_name: web
+  django:
+    container_name: siste_skoring
     command: python manage.py runserver 0.0.0.0:8080
     build:
       context: .
-    # env_file:
-    #   - .env
     volumes:
       - .:/app
     ports:
