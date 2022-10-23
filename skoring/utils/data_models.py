@@ -8,13 +8,13 @@ experience_dir = os.path.abspath(os.path.join(base_dir, "datasets/Experience.xls
 catalog_train = os.path.abspath(os.path.join(base_dir, "datasets/TrainingCatalog.xlsx"))
 
 
-def save(dir, data):
-    data = pd.DataFrame([{"data": data}])
-    wb = load_workbook(filename=dir)
-    ws = wb["Sheet1"]
+def save(dir, data): #function untuk saving experience / catalog
+    data = pd.DataFrame([{"data": data}]) # menjadikan data sebagai dataframe
+    workbook = load_workbook(filename=dir) # open excel
+    worksheet = workbook["Sheet1"] # ambil data sheet1
     for r in dataframe_to_rows(data, index=False, header=False):
-        ws.append(r)
-    wb.save(dir)
+        worksheet.append(r)
+    workbook.save(dir) #simpan data ke excel
 
 
 def add_experience(data):

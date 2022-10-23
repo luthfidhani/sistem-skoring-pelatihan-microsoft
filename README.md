@@ -20,15 +20,11 @@ python manage.py runserver
 ### Using docker
 1. Install [Docker](https://docs.docker.com/engine/install/) first
 2. Install [Docker Compose](https://docs.docker.com/compose/install/)
-3. Build image using Makefile or Docker Compose
+3. Build image using `auto` scripts
 
 Using Makefile 
 ```bash
-make web
-```
-Docker-compose
-```bash
-docker-compose up web
+./auto/start
 ```
 
 4. Open your favourite browser. And go [http://localhost:8080](http://localhost:8080)

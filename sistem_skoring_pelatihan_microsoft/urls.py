@@ -16,5 +16,5 @@ Including another URLconf
 from django.urls import path, include
 
 urlpatterns = [
-    path("", include("skoring.urls")),
+    path("", include("skoring.urls")), # URL index mengakses apps skoring dibagian urls.py
 ]
