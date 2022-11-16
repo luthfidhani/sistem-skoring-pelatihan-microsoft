@@ -39,7 +39,6 @@ def Cosim(corpus, query): # function cosim dengan parameter corpus dan query
 
     pd.set_option("display.max_colwidth", None) # melakukan perintah agar data bisa ditampilkan semua tidak (...)
     adf = pd.DataFrame(data=concat, columns=["corpus", "cosim value"]) # mengubah array menjadi dataframe dengan nama kolom corpus dan cosime value
-
     return adf
 
 
@@ -57,5 +56,5 @@ def train(query, topic):
     df = pytrend.interest_by_region() # melakukan pencarian by region
     jml_trend = np.array(df.loc["Indonesia"])[0] / 100 # mengambil nilai dari negara indonesia kemudian dibagi dengan 100
     mean.append(jml_trend) # menambahkan nilai dari jml_trend ke dalam variabel mean
-
+    mean = np.nan_to_num(mean) # convert NaN value to 0
     return np.sum(mean) # mengembalikan jumlah dari rata-rata

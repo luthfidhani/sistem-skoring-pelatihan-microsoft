@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   django:
-    container_name: siste_skoring
+    container_name: sistem_skoring
     command: python manage.py runserver 0.0.0.0:8080
     build:
       context: .
