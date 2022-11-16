@@ -47,14 +47,16 @@ def train(query, topic):
 
     count = []
     mean = []
+    cosim_data = []
     for i in corpus: # melakukan perulangan pada corpus => event_name, catalog
         cosim = Cosim(i, query) # melakukan perhitungan cosim
         count.append(len(cosim)) # menggabung nilai dari panjang cosim
         mean.append(cosim["cosim value"].mean()) # menggabung nilai dari mean cosim
+        cosim_data.append(cosim)
 
     pytrend.build_payload(kw_list=[topic]) # melakukan pencarian nilai dari query ke google trend api
     df = pytrend.interest_by_region() # melakukan pencarian by region
     jml_trend = np.array(df.loc["Indonesia"])[0] / 100 # mengambil nilai dari negara indonesia kemudian dibagi dengan 100
     mean.append(jml_trend) # menambahkan nilai dari jml_trend ke dalam variabel mean
     mean = np.nan_to_num(mean) # convert NaN value to 0
-    return np.sum(mean) # mengembalikan jumlah dari rata-rata
+    return np.sum(mean), mean, cosim_data # mengembalikan jumlah dari rata-rata

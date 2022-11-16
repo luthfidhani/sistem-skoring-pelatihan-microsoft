@@ -56,6 +56,97 @@
                     {% if result %}
                     <h5 class="text-center mt-5">Query : {{query}} | Topik : {{topic}}</h5>
                     <h1 class="text-center mt-5">{{result}}</h1>
+
+                    <div class="accordion py-5" id="accordionExample">
+                        <div class="accordion-item">
+                          <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                              Detail:
+                            </button>
+                          </h2>
+                          <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                              <br>
+                              <h5>Event Details:</h5>
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th scope="col">Corpus</th>
+                                    <th scope="col">Cosim Value</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {% for cosim in cosim_data.0.values %}
+                                  <tr>
+                                    <td>{{ cosim.0 }}</td>
+                                    <td>{{ cosim.1 }}</td>
+                                  </tr>
+                                  {% endfor %}
+                                </tbody>
+                                <thead class="table-secondary">
+                                    <tr>
+                                      <th scope="col">Average</th>
+                                      <th scope="col">{{mean.0}}</th>
+                                    </tr>
+                                </thead>
+                              </table>
+                              <br>
+                              <h5>Catalog Details:</h5>
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th scope="col">Corpus</th>
+                                    <th scope="col">Cosim Value</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {% for cosim in cosim_data.1.values %}
+                                  <tr>
+                                    <td>{{ cosim.0 }}</td>
+                                    <td>{{ cosim.1 }}</td>
+                                  </tr>
+                                  {% endfor %}
+                                </tbody>
+                                <thead class="table-secondary">
+                                    <tr>
+                                      <th scope="col">Average</th>
+                                      <th scope="col">{{mean.1}}</th>
+                                    </tr>
+                                </thead>
+                              </table>
+                              <br>
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th scope="col">Source</th>
+                                    <th scope="col">Value</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td>Event</td>
+                                    <td>{{ mean.0 }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Catalog</td>
+                                    <td>{{ mean.1 }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Google Trend</td>
+                                    <td>{{ mean.2 }}</td>
+                                  </tr>
+                                </tbody>
+                                <thead class="table-secondary">
+                                    <tr>
+                                      <th scope="col">Total</th>
+                                      <th scope="col">{{ result }}</th>
+                                    </tr>
+                                </thead>
+                              </table>                 
+                            </div>
+                          </div>
+                        </div>
+                    </div>
                     {% endif %}
                 </div>
                 <div class="tab-pane fade" id="pills-add-object" role="tabpanel" aria-labelledby="pills-add-object-tab">

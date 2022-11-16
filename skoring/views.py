@@ -14,8 +14,8 @@ def analyze(request): # fungsi untuk menganilis data
         topic = request.POST["topic"] # post request dengan value topic
 
         if query and topic:
-            analyzing = train(query, topic) #training data
-            data = {"result": analyzing, "query": query, "topic": topic} #data dijadikan dict
+            analyzing, mean, cosim_data = train(query, topic) #training data
+            data = {"result": analyzing, "query": query, "topic": topic, "mean": mean, "cosim_data": cosim_data} #data dijadikan dict
 
             return render(request, "skoring/index.html", data) # return data ke html dan menampilkan nya di index html
         return redirect("index") # jika query dan topic tidak ada nilai, redirect ke index
