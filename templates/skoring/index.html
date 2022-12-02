@@ -48,7 +48,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="topic" class="form-label">Topik</label>
-                            <input type="text" class="form-control" name="topic">
+                            <input type="text" class="form-control" name="topic" value="">
                         </div>
                         {% csrf_token %}
                         <button type="submit" class="btn btn-primary" @click="analyze = 'Loading'">[[analyze]]</button>
@@ -56,6 +56,11 @@
                     {% if result %}
                     <h5 class="text-center mt-5">Query : {{query}} | Topik : {{topic}}</h5>
                     <h1 class="text-center mt-5">{{result}}</h1>
+                    <div class="{{ alert }}" role="alert">
+                      <h3 class="text-center">
+                        {{ ahp }}
+                      </h3>
+                    </div>
 
                     <div class="accordion py-5" id="accordionExample">
                         <div class="accordion-item">
@@ -71,23 +76,29 @@
                               <table class="table">
                                 <thead>
                                   <tr>
-                                    <th scope="col">Corpus</th>
-                                    <th scope="col">Cosim Value</th>
+                                    <th scope="col">Events</th>
+                                    <th scope="col">Cosim Values</th>
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {% for cosim in cosim_data.0.values %}
+                                  {% for event in cosim_data.0 %}
                                   <tr>
-                                    <td>{{ cosim.0 }}</td>
-                                    <td>{{ cosim.1 }}</td>
+                                    <td>{{ event.0 }}</td>
+                                    <td>{{ event.1 }}</td>
                                   </tr>
                                   {% endfor %}
                                 </tbody>
                                 <thead class="table-secondary">
                                     <tr>
                                       <th scope="col">Average</th>
-                                      <th scope="col">{{mean.0}}</th>
+                                      <th scope="col">{{average_cosim_value.0}}</th>
                                     </tr>
+                                </thead>
+                                <thead class="table-secondary">
+                                  <tr>
+                                    <th scope="col">Total = average * 3</th>
+                                    <th scope="col">{{ mean.0 }}</th>
+                                  </tr>
                                 </thead>
                               </table>
                               <br>
@@ -95,24 +106,30 @@
                               <table class="table">
                                 <thead>
                                   <tr>
-                                    <th scope="col">Corpus</th>
-                                    <th scope="col">Cosim Value</th>
+                                    <th scope="col">Events</th>
+                                    <th scope="col">Cosim Values</th>
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {% for cosim in cosim_data.1.values %}
+                                  {% for event in cosim_data.1 %}
                                   <tr>
-                                    <td>{{ cosim.0 }}</td>
-                                    <td>{{ cosim.1 }}</td>
+                                    <td>{{ event.0 }}</td>
+                                    <td>{{ event.1 }}</td>
                                   </tr>
                                   {% endfor %}
                                 </tbody>
                                 <thead class="table-secondary">
-                                    <tr>
-                                      <th scope="col">Average</th>
-                                      <th scope="col">{{mean.1}}</th>
-                                    </tr>
-                                </thead>
+                                  <tr>
+                                    <th scope="col">Average</th>
+                                    <th scope="col">{{average_cosim_value.1}}</th>
+                                  </tr>
+                              </thead>
+                              <thead class="table-secondary">
+                                <tr>
+                                  <th scope="col">Total = average * 3</th>
+                                  <th scope="col">{{ mean.1 }}</th>
+                                </tr>
+                              </thead>
                               </table>
                               <br>
                               <table class="table">
@@ -134,6 +151,10 @@
                                   <tr>
                                     <td>Google Trend</td>
                                     <td>{{ mean.2 }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Eventbrite</td>
+                                    <td>{{ mean.3 }}</td>
                                   </tr>
                                 </tbody>
                                 <thead class="table-secondary">
