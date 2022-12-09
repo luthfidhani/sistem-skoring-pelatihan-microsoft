@@ -57,9 +57,9 @@
                     <h5 class="text-center mt-5">Query : {{query}} | Topik : {{topic}}</h5>
                     <h1 class="text-center mt-5">{{result}}</h1>
                     <div class="{{ alert }}" role="alert">
-                      <h3 class="text-center">
-                        {{ ahp }}
-                      </h3>
+                      <p class="text-center">
+                        {{ message }}
+                      </p>
                     </div>
 
                     <div class="accordion py-5" id="accordionExample">
@@ -141,19 +141,19 @@
                                 </thead>
                                 <tbody>
                                   <tr>
-                                    <td>Event</td>
+                                    <td>Event (max value = 4)</td>
                                     <td>{{ mean.0 }}</td>
                                   </tr>
                                   <tr>
-                                    <td>Catalog</td>
+                                    <td>Catalog (max value = 4)</td>
                                     <td>{{ mean.1 }}</td>
                                   </tr>
                                   <tr>
-                                    <td>Google Trend</td>
+                                    <td>Google Trend (max value = 2)</td>
                                     <td>{{ mean.2 }}</td>
                                   </tr>
                                   <tr>
-                                    <td>Eventbrite</td>
+                                    <td>Eventbrite (max value = 2)</td>
                                     <td>{{ mean.3 }}</td>
                                   </tr>
                                 </tbody>
@@ -173,18 +173,22 @@
                 <div class="tab-pane fade" id="pills-add-object" role="tabpanel" aria-labelledby="pills-add-object-tab">
                     <form action="{% url 'add' %}" method="post">
                         <div class="mb-3">
-                            <label for="training_catalog" class="form-label">Training Catalog</label>
-                            <input type="text" class="form-control" name="training_catalog" value="">
+                          <label for="select_data" class="form-label">Select data:</label>
+                          <select class="form-select" aria-label="Default select example" name="select_data">
+                            <option value="Event Details">Event Details</option>
+                            <option value="Training Catalog">Training Catalog</option>
+                          </select>
                         </div>
                         <div class="mb-3">
-                            <label for="experience" class="form-label">Experience</label>
-                            <input type="text" class="form-control" name="experience">
+                            <label for="tittle" class="form-label">Tittle</label>
+                            <input type="text" class="form-control" name="tittle" value="" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="learning_outcomes" class="form-label">Learning Outcomes</label>
+                            <textarea class="form-control" name="learning_outcomes" rows="5" required></textarea>
+                            <p class="fw-light">create a new line if the data is more than 1</p>
                         </div>
                         {% csrf_token %}
-                        <div>
-                            
-                            <p><strong class="text-danger">*</strong> You can add one or both at once</p>
-                        </div>
                         <button type="submit" class="btn btn-primary" @click="submit = 'Loading'">[[submit]]</button>
                     </form>
                 </div>

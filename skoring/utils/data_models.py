@@ -1,15 +1,10 @@
-import os
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
-
-base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
-experience_dir = os.path.abspath(os.path.join(base_dir, "datasets/Experience.xlsx"))
-catalog_train = os.path.abspath(os.path.join(base_dir, "datasets/TrainingCatalog.xlsx"))
+from .ai_models import path_event_detail, path_training_catalog
 
 
-def save(dir, data): #function untuk saving experience / catalog
-    data = pd.DataFrame([{"data": data}]) # menjadikan data sebagai dataframe
+def save_to_excel(dir, data): #function untuk saving experience / catalog
     workbook = load_workbook(filename=dir) # open excel
     worksheet = workbook["Sheet1"] # ambil data sheet1
     for r in dataframe_to_rows(data, index=False, header=False):
@@ -17,9 +12,22 @@ def save(dir, data): #function untuk saving experience / catalog
     workbook.save(dir) #simpan data ke excel
 
 
-def add_experience(data):
-    save(experience_dir, data)
+def convert_to_dataframe(tittle, learning_outcomes):
+    learning_outcomes = learning_outcomes.splitlines() # split /n (enter)
+    tittles = [tittle] * len(learning_outcomes) # menyamakan dimensi tittle dengan learning outcomes
+
+    return pd.DataFrame(
+        {
+            "Tittle": tittles,
+            "Learnng Outcome": learning_outcomes,
+        }
+    ) # mereturn sebagai dataframe
+
+def add_event_detail(tittle, learning_outcomes):
+    data = convert_to_dataframe(tittle, learning_outcomes) # melakukan convert ke dataframe
+    save_to_excel(path_event_detail, data) # menyimpan data ke excel
 
 
-def add_training_catalog(data):
-    save(catalog_train, data)
+def add_training_catalog(tittle, learning_outcomes):
+    data = convert_to_dataframe(tittle, learning_outcomes) # melakukan convert ke dataframe
+    save_to_excel(path_training_catalog, data) # menyimpan data ke excel

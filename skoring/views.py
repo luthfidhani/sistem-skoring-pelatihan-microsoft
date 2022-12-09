@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt 
 from skoring.utils.ai_models import train
-from skoring.utils.data_models import add_training_catalog, add_experience
+from skoring.utils.data_models import add_event_detail, add_training_catalog
 
 
 def index(request):
@@ -17,15 +17,33 @@ def analyze(request): # fungsi untuk menganilis data
             result, mean, cosim_data, mean_cosims = train(query, topic) #training data
 
             # Cek AHP
-            if result >= 7:
+            if result >= 8:
                 ahp = "Sangat direkomendasikan"
                 alert = "alert alert-success"
-            elif result >= 3:
+                message = f'''
+                    Pelatihan sangat sering dilaksanakan oleh perusahaan, sehingga memiliki kemampuan yang cukup signifikan disitu. 
+                    Dalam katalog terdapat katalog yang membicarakan tentang topik tersebut. 
+                    Sedangkan Google Trend mengambarkan topik tersebut mendapat nilai {mean[2]} dan terdapat di Evenbrite. 
+                    Oleh karena itu, pelatihan tersebut sangat direkomendasikan
+                '''
+            elif result >= 4:
                 ahp = "Bisa dicoba"
                 alert = "alert alert-primary"
+                message = f'''
+                    Pelatihan cukup sering dilakukan oleh perusahaan, sehingga memiliki pengalaman yang cukup untuk pelatihan tersebut. 
+                    Dalam katalog terdapat katalog yang membicarakan tentang topik tersebut. 
+                    Sedangkan Google Trend mengambarkan topik tersebut mendapat nilai {mean[2]} dan terdapat di Evenbrite. 
+                    Oleh karena itu, pelatihan tersebut boleh untuk dicoba
+                '''
             else:
                 ahp = "Tidak direkomendasikan"
                 alert = "alert alert-danger"
+                message = f'''
+                    Pelatihan jarang dilaksanakan oleh perusahaan, sehingga belum memiliki pengalaman yang cukup. 
+                    Dalam katalog terdapat katalog yang membicarakan tentang topik tersebut. 
+                    Sedangkan Google Trend mengambarkan topik tersebut mendapat nilai {mean[2]} dan terdapat di Evenbrite. 
+                    Oleh karena itu, pelatihan tersebut tidak direkomendasikan.
+                '''
             data = {
                 "result": result,
                 "query": query,
@@ -34,7 +52,8 @@ def analyze(request): # fungsi untuk menganilis data
                 "cosim_data": cosim_data,
                 "average_cosim_value": mean_cosims,
                 "ahp": ahp,
-                "alert": alert
+                "alert": alert,
+                "message": message
             } #data dijadikan dict
 
             return render(request, "skoring/index.html", data) # return data ke html dan menampilkan nya di index html
@@ -48,20 +67,18 @@ def analyze(request): # fungsi untuk menganilis data
 @csrf_exempt #mengecualikan CRSF (biar ga pake CRSF)
 def add(request): # fungsi untuk menambahkan data
     try:
-        training_catalog = request.POST["training_catalog"] # post request dengan value training_catalog
-        experience = request.POST["experience"] # post request dengan value experience
+        tittle = request.POST["tittle"]
+        learning_outcomes = request.POST["learning_outcomes"]
 
-        if training_catalog or experience: #jika ada data di trainig catalog / experience, maka:
-            if training_catalog: 
-                add_training_catalog(training_catalog) #mengeksekusi fungsi add training catalog
-                data = {"data": "Training Catalog"} # alert untuk ditampilkan di index html ketika berhasil menambakan data
-            if experience:
-                add_experience(experience)
-                data = {"data": "Experience"}
-            if training_catalog and experience:
-                data = {"data": "Training Catalog & Experience"}
-            return render(request, "skoring/index.html", data)
-        return redirect("index")
+        if request.POST["select_data"] == "Event Details":
+            add_event_detail(tittle, learning_outcomes) #mengeksekusi fungsi add event details
+            data = {"data": "Event Details"} # alert untuk ditampilkan di index html ketika berhasil menambakan data
+        else:
+            add_training_catalog(tittle, learning_outcomes)
+            data = {"data": "Training Catalog"}
 
-    except Exception:
+        return render(request, "skoring/index.html", data)
+
+    except Exception as exp:
+        print(exp)
         return redirect("index")

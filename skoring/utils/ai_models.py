@@ -11,20 +11,20 @@ base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__))) # mendapatk
 
 path_event_detail = os.path.abspath(os.path.join(base_dir, "datasets/Event Details.xlsx")) # join bash dir dengan dataset dir file
 df_event_detail = pd.read_excel(path_event_detail).dropna(axis=0) #membuka file excel Event Details.xlsx
-events_event_detail = np.array(df_event_detail)[:,0]
+tittle_event_detail = np.array(df_event_detail)[:,0] # mengambil kolom tittle dan dijadikan array 
 learning_outcome_event_detail = [event_detail.replace('\xa0','') for event_detail in np.array(df_event_detail)[:,1]] #menjadikan dataframe ke array dan menghapus karakter \xa0
 
 
 path_training_catalog = os.path.abspath(os.path.join(base_dir, "datasets/Training Catalog.xlsx")) # join bash dir dengan dataset dir file
 df_training_catalog = pd.read_excel(path_training_catalog).dropna(axis=0) #membuka file excel Event Details.xlsx
-events_training_catalog = np.array(df_training_catalog)[:,0]
-learning_outcome_training_catalog = np.array(df_training_catalog)[:,1]
+tittle_training_catalog = np.array(df_training_catalog)[:,0] # mengambil kolom tittle dan dijadikan array 
+learning_outcome_training_catalog = np.array(df_training_catalog)[:,1] # mengambil kolom learning outcome dan dijadikan array
 
-
+#fungsi untuk melakukan http requests
 async def request_worker(url, json, headers):
-    client = httpx.AsyncClient()
-    response = await client.post(url=url, json=json, headers=headers)
-    return response.json()
+    client = httpx.AsyncClient() # inisialisasi client
+    response = await client.post(url=url, json=json, headers=headers) #request ke server
+    return response.json() # retusn as a json
 
 async def get_eventbrite_value(topics):
     url = "https://www.eventbrite.com/api/v3/destination/search/"
@@ -41,71 +41,74 @@ async def get_eventbrite_value(topics):
                 "q":topic,
                 "dates":"current_future",
                 "dedup":True,
-                "places":["85632203"],
+                "places":["85632203"], # Indoneisa
                 "page":1,
                 "page_size":100,
                 "online_events_only":False,
                 "include_promoted_events":True
             }
         }
-        tasks.append(asyncio.ensure_future(request_worker(url=url, json=payload, headers=headers)))
-    responses = await asyncio.gather(*tasks)
+        tasks.append(asyncio.ensure_future(request_worker(url=url, json=payload, headers=headers))) # mengeksekusi request worker secara async
+    responses = await asyncio.gather(*tasks) # menkoleksi responses
+    
+    values = np.array([data.get("events").get("pagination").get("object_count") for data in responses]) # mengumpulkan nilai dari dari bbrpa response menjadi 1 list
+    limit_values = np.array([value if value <= 15 else 15 for value in values]) # melimit value max 15
 
-    return np.mean(np.array([data.get("events").get("pagination").get("object_count") for data in responses])) / 10
+    return limit_values * 0.067 #mereturn limit value dengan dikali dengan 0.067
 
 def get_trending_value(topics):
+    # return 1
     pytrend = TrendReq() #inisialisasi obyek google trend api
     pytrend.build_payload(kw_list=topics, cat=0, timeframe='today 12-m') # melakukan pencarian nilai dari query ke google trend api
     data = pytrend.interest_by_region() # melakukan pencarian by region
 
-    return data.loc["Indonesia"].values.mean() / 10 # mengambil nilai dari negara indonesia kemudian dibagi dengan 10
+    return data.loc["Indonesia"].values.mean() / 100 # mengambil nilai dari negara indonesia kemudian dibagi dengan 100
 
 
-def get_cosim_value(learning_outcomes, events, query, threshold=0.2): # function cosim dengan parameter corpus dan query
+def get_cosim_value(learning_outcomes, tittle, query, threshold=0.2): # function cosim dengan parameter corpus dan query
     vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1,2)) # inisialisasi obyek tfidf dengan parameter stopword english dan ngram 1 dan 2
 
     tfidf_learning_outcomes = vectorizer.fit_transform(learning_outcomes) # melakukan pembobotan kata korpus
     tfidf_query = vectorizer.transform([query]) # melakukan pembobotan query dengan data tf-idf dari learning_outcomes
 
     value_cosims = cosine_similarity(tfidf_query, tfidf_learning_outcomes).flatten() #melakukan perhitungan cosine similarity kemudian dijadikan array 1 dimensi
-    cosim_sort = np.sort(value_cosims)[::-1] #melakukan pengurutan secara descending dari hasil cosine similarity
     
     value_learning_outcomes = [value for value in value_cosims if value >= threshold] # menfilter nilai value_cosims lebih >= threshold
     index_learning_outcomes = np.where(value_cosims >= threshold) # mencari index yang value_cosims >= threshold
-    selected_events = [events[index] for index in index_learning_outcomes][0] # mencari event yang terdapat pada index_learning_outcomes
+    selected_tittle = [tittle[index] for index in index_learning_outcomes][0] # mencari event yang terdapat pada index_learning_outcomes
     
-    results = pd.DataFrame( # events dan value dijadikan dataframe
+    results = pd.DataFrame( # tittle dan value dijadikan dataframe
         {
-            "events": selected_events,
+            "tittle": selected_tittle,
             "values": value_learning_outcomes,
         }
-    ).groupby('events')['values'].sum() # menjumlahkan value berdasarkan nilai unik dari events
+    ).groupby('tittle')['values'].sum() # menjumlahkan value berdasarkan nilai unik dari tittle
 
-    events = np.array(list(results.to_dict().keys()))
-    events = events.reshape(len(events), 1)
+    tittle = np.array(list(results.to_dict().keys())) #mengambil kolom title untuk dijadikan array
+    tittle = tittle.reshape(len(tittle), 1) # dari ['title1', 'title2', 'title3'] => [['title1'], ['title2'], ['title3'],] agar mudah gabung secara horisontal dengan values nya
 
     values = np.array(results.values)
-    values = values.reshape(len(values), 1)
+    values = values.reshape(len(values), 1) # dari ['value1', 'value2', 'value3'] => [['value1'], ['value2'], ['value3'],] agar mudah gabung secara horisontal dengan tittle nya
 
-    return np.hstack((events, values)), np.mean(results.values) # return ([unique_events, value_events]), mean
+    return np.hstack((tittle, values)), np.mean(results.values) # return ([unique_tittle, value_tittle]), mean
 
 def train(query, topics):
-    topics = topics.split(",")
+    topics = topics.split(",") # split topic dengan pemisah ,
     learning_outcomes = [learning_outcome_event_detail, learning_outcome_training_catalog]
-    events = [events_event_detail, events_training_catalog]
+    tittle = [tittle_event_detail, tittle_training_catalog]
 
     data_cosims = []
     mean_cosims = []
     for i in range(len(learning_outcomes)): #melakukan perulangan dari list learning_outcomes
-        cosims, mean = get_cosim_value(learning_outcomes[i], events[i], query)
-        data_cosims.append(cosims) #melakukan proses perhitungan cosim dengan memanggil fungsi cosim
-        mean_cosims.append(mean)
+        cosims, mean = get_cosim_value(learning_outcomes[i], tittle[i], query) #melakukan perhitungan cosim value
+        data_cosims.append(cosims) # menggabung nilai cosim pada setiap perulangan
+        mean_cosims.append(mean) # menggabung nilai mean pada setiap perulangan
 
     eventbrite_value = asyncio.run(get_eventbrite_value(topics)) # request value from eventbrite using async method based on topics
     trending_value = get_trending_value(topics) # request value from google trending based on topics
     
     # values = [event details, training catalog, trending value, event brite value]
-    values = [mean_cosims[0], mean_cosims[1], trending_value, eventbrite_value]
-    values = np.nan_to_num(values) * np.array([3, 3, 2, 2]) # convert NaN value to 0 dan dikali dengan bobotnya 
+    values = [mean_cosims[0], mean_cosims[1], trending_value, eventbrite_value.mean()] # menggabung kan menjadi 1 list
+    values = np.nan_to_num(values) * np.array([4, 4, 2, 2]) # convert NaN value to 0 dan dikali dengan bobotnya 
 
-    return np.mean(values), values, data_cosims, mean_cosims # mengembalikan jumlah dari rata-rata
+    return np.sum(values), values, data_cosims, mean_cosims # mengembalikan jumlah dari rata-rata
