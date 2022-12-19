@@ -57,7 +57,7 @@ async def get_eventbrite_value(topics):
     return values, limit_values * 0.067 #mereturn jumlah event di eventbrite dan limit value dengan dikali dengan 0.067
 
 def get_trending_value(topics):
-    return 1
+    # return 1
     pytrend = TrendReq() #inisialisasi obyek google trend api
     pytrend.build_payload(kw_list=topics, cat=0, timeframe='today 12-m') # melakukan pencarian nilai dari query ke google trend api
     data = pytrend.interest_by_region() # melakukan pencarian by region
