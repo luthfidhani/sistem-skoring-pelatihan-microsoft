@@ -50,7 +50,6 @@ async def get_eventbrite_value(topics):
         }
         tasks.append(asyncio.ensure_future(request_worker(url=url, json=payload, headers=headers))) # mengeksekusi request worker secara async
     responses = await asyncio.gather(*tasks) # menkoleksi responses
-    
     values = np.array([data.get("events").get("pagination").get("object_count") for data in responses]) # mengumpulkan nilai dari dari bbrpa response menjadi 1 list
     limit_values = np.array([value if value <= 15 else 15 for value in values]) # melimit value max 15
 
@@ -72,17 +71,21 @@ def get_cosim_value(learning_outcomes, tittle, query, threshold=0.2): # function
     tfidf_query = vectorizer.transform([query]) # melakukan pembobotan query dengan data tf-idf dari learning_outcomes
 
     value_cosims = cosine_similarity(tfidf_query, tfidf_learning_outcomes).flatten() #melakukan perhitungan cosine similarity kemudian dijadikan array 1 dimensi
-    
+
     value_learning_outcomes = [value for value in value_cosims if value >= threshold] # menfilter nilai value_cosims lebih >= threshold
     index_learning_outcomes = np.where(value_cosims >= threshold) # mencari index yang value_cosims >= threshold
     selected_tittle = [tittle[index] for index in index_learning_outcomes][0] # mencari event yang terdapat pada index_learning_outcomes
-    
+
     results = pd.DataFrame( # tittle dan value dijadikan dataframe
         {
             "tittle": selected_tittle,
             "values": value_learning_outcomes,
         }
     ).groupby('tittle')['values'].sum() # menjumlahkan value berdasarkan nilai unik dari tittle
+
+    # print(index_learning_outcomes)
+    # print(value_learning_outcomes)
+    # print([learning_outcomes[index] for index in index_learning_outcomes[0]])
 
     tittle = np.array(list(results.to_dict().keys())) #mengambil kolom title untuk dijadikan array
     tittle = tittle.reshape(len(tittle), 1) # dari ['title1', 'title2', 'title3'] => [['title1'], ['title2'], ['title3'],] agar mudah gabung secara horisontal dengan values nya
