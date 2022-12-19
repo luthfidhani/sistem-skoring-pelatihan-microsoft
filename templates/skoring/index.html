@@ -47,18 +47,18 @@
                             <input type="text" class="form-control" name="query" value="">
                         </div>
                         <div class="mb-3">
-                            <label for="topic" class="form-label">Topik</label>
-                            <input type="text" class="form-control" name="topic" value="">
+                            <label for="topics" class="form-label">Topik</label>
+                            <input type="text" class="form-control" name="topics" value="">
                         </div>
                         {% csrf_token %}
                         <button type="submit" class="btn btn-primary" @click="analyze = 'Loading'">[[analyze]]</button>
                     </form>
                     {% if result %}
-                    <h5 class="text-center mt-5">Query : {{query}} | Topik : {{topic}}</h5>
+                    <h5 class="text-center mt-5">Query : {{query}} | Topik : {{topics}}</h5>
                     <h1 class="text-center mt-5">{{result}}</h1>
                     <div class="{{ alert }}" role="alert">
                       <p class="text-center">
-                        {{ message }}
+                        {{ message |safe }}
                       </p>
                     </div>
 

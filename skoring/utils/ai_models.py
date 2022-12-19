@@ -54,10 +54,10 @@ async def get_eventbrite_value(topics):
     values = np.array([data.get("events").get("pagination").get("object_count") for data in responses]) # mengumpulkan nilai dari dari bbrpa response menjadi 1 list
     limit_values = np.array([value if value <= 15 else 15 for value in values]) # melimit value max 15
 
-    return limit_values * 0.067 #mereturn limit value dengan dikali dengan 0.067
+    return values, limit_values * 0.067 #mereturn jumlah event di eventbrite dan limit value dengan dikali dengan 0.067
 
 def get_trending_value(topics):
-    # return 1
+    return 1
     pytrend = TrendReq() #inisialisasi obyek google trend api
     pytrend.build_payload(kw_list=topics, cat=0, timeframe='today 12-m') # melakukan pencarian nilai dari query ke google trend api
     data = pytrend.interest_by_region() # melakukan pencarian by region
@@ -104,11 +104,11 @@ def train(query, topics):
         data_cosims.append(cosims) # menggabung nilai cosim pada setiap perulangan
         mean_cosims.append(mean) # menggabung nilai mean pada setiap perulangan
 
-    eventbrite_value = asyncio.run(get_eventbrite_value(topics)) # request value from eventbrite using async method based on topics
+    number_of_eventbrite, eventbrite_value = asyncio.run(get_eventbrite_value(topics)) # request value from eventbrite using async method based on topics
     trending_value = get_trending_value(topics) # request value from google trending based on topics
     
     # values = [event details, training catalog, trending value, event brite value]
     values = [mean_cosims[0], mean_cosims[1], trending_value, eventbrite_value.mean()] # menggabung kan menjadi 1 list
     values = np.nan_to_num(values) * np.array([4, 4, 2, 2]) # convert NaN value to 0 dan dikali dengan bobotnya 
 
-    return np.sum(values), values, data_cosims, mean_cosims # mengembalikan jumlah dari rata-rata
+    return np.sum(values), values, data_cosims, mean_cosims, number_of_eventbrite # mengembalikan jumlah dari rata-rata

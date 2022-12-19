@@ -11,10 +11,14 @@ def index(request):
 def analyze(request): # fungsi untuk menganilis data
     try:
         query = request.POST["query"] # post request dengan value query
-        topic = request.POST["topic"] # post request dengan value topic
+        topics = request.POST["topics"] # post request dengan value topics
 
-        if query and topic:
-            result, mean, cosim_data, mean_cosims = train(query, topic) #training data
+        if query and topics:
+            result, mean, cosim_data, mean_cosims, number_of_eventbrite = train(query, topics) #training data
+
+            eventbrite_message = ""
+            for topic, eventbrite in zip(topics.split(","), number_of_eventbrite):
+                eventbrite_message = eventbrite_message + f" topik {topic} berjumlah {eventbrite} event, "
 
             # Cek AHP
             if result >= 8:
@@ -22,32 +26,35 @@ def analyze(request): # fungsi untuk menganilis data
                 alert = "alert alert-success"
                 message = f'''
                     Pelatihan sangat sering dilaksanakan oleh perusahaan, sehingga memiliki kemampuan yang cukup signifikan disitu. 
-                    Dalam katalog terdapat katalog yang membicarakan tentang topik tersebut. 
-                    Sedangkan Google Trend mengambarkan topik tersebut mendapat nilai {mean[2]} dan terdapat di Evenbrite. 
-                    Oleh karena itu, pelatihan tersebut sangat direkomendasikan
+                    Dalam katalog terdapat {len(cosim_data[1])} topik yang membicarakan tentang topik tersebut. 
+                    Dalam event terdapat {len(cosim_data[0])} topik yang membicarakan tentang topik tersebut. 
+                    Sedangkan Google Trend mengambarkan topik tersebut mendapat nilai {mean[2]} dan terdapat {eventbrite_message} event di Evenbrite. 
+                    Oleh karena itu,<b> pelatihan tersebut sangat direkomendasikan. </b>
                 '''
             elif result >= 4:
                 ahp = "Bisa dicoba"
                 alert = "alert alert-primary"
                 message = f'''
                     Pelatihan cukup sering dilakukan oleh perusahaan, sehingga memiliki pengalaman yang cukup untuk pelatihan tersebut. 
-                    Dalam katalog terdapat katalog yang membicarakan tentang topik tersebut. 
-                    Sedangkan Google Trend mengambarkan topik tersebut mendapat nilai {mean[2]} dan terdapat di Evenbrite. 
-                    Oleh karena itu, pelatihan tersebut boleh untuk dicoba
+                    Dalam katalog terdapat {len(cosim_data[1])} katalog yang membicarakan tentang topik tersebut. 
+                    Dalam event terdapat {len(cosim_data[0])} topik yang membicarakan tentang topik tersebut. 
+                    Sedangkan Google Trend mengambarkan topik tersebut mendapat nilai {mean[2]} dan terdapat {eventbrite_message} event di Evenbrite. 
+                    Oleh karena itu, <b> pelatihan tersebut boleh untuk dicoba. </b>
                 '''
             else:
                 ahp = "Tidak direkomendasikan"
                 alert = "alert alert-danger"
                 message = f'''
                     Pelatihan jarang dilaksanakan oleh perusahaan, sehingga belum memiliki pengalaman yang cukup. 
-                    Dalam katalog terdapat katalog yang membicarakan tentang topik tersebut. 
-                    Sedangkan Google Trend mengambarkan topik tersebut mendapat nilai {mean[2]} dan terdapat di Evenbrite. 
-                    Oleh karena itu, pelatihan tersebut tidak direkomendasikan.
+                    Dalam katalog terdapat {len(cosim_data[1])} katalog yang membicarakan tentang topik tersebut. 
+                    Dalam event terdapat {len(cosim_data[0])} topik yang membicarakan tentang topik tersebut. 
+                    Sedangkan Google Trend mengambarkan topik tersebut mendapat nilai {mean[2]} dan terdapat {eventbrite_message} event di Evenbrite. 
+                    Oleh karena itu, <b> pelatihan tersebut tidak direkomendasikan. </b>
                 '''
             data = {
                 "result": result,
                 "query": query,
-                "topic": topic,
+                "topics": topics,
                 "mean": mean,
                 "cosim_data": cosim_data,
                 "average_cosim_value": mean_cosims,
@@ -58,7 +65,7 @@ def analyze(request): # fungsi untuk menganilis data
 
             return render(request, "skoring/index.html", data) # return data ke html dan menampilkan nya di index html
 
-        return redirect("index") # jika query dan topic tidak ada nilai, redirect ke index
+        return redirect("index") # jika query dan topics tidak ada nilai, redirect ke index
 
     except Exception as exp:
         print(exp)
