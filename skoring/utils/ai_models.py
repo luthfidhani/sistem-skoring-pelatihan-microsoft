@@ -7,12 +7,11 @@ import pandas as pd # import library pandas untuk membaca data
 from pytrends.request import TrendReq #import library google trend api
 from sklearn.feature_extraction.text import TfidfVectorizer # import library tfidf dari sklearn untuk menghitung tf-idf dari data
 from sklearn.metrics.pairwise import cosine_similarity # import library cosin similarity dari sklearn untuk menghitung cosine similaroty
+from django.conf import settings
 
 base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__))) # mendapatkan base direcrtory dari project ini
 
-bearer_token="AAAAAAAAAAAAAAAAAAAAACK4NQEAAAAArlTcLIKzcoiLQM7ppMuD6yM55No%3DCdXJteUd154QhX7UCM9nyyzVuLniLCmAbjbMhhjDP3bJd4DsVr"
-
-client = tweepy.Client(bearer_token=bearer_token)
+client = tweepy.Client(bearer_token=settings.BEARER_TOKEN)
 
 path_event_detail = os.path.abspath(os.path.join(base_dir, "datasets/Event Details.xlsx")) # join bash dir dengan dataset dir file
 df_event_detail = pd.read_excel(path_event_detail).dropna(axis=0) #membuka file excel Event Details.xlsx
@@ -34,9 +33,9 @@ async def request_worker(url, json, headers):
 async def get_eventbrite_value(topics):
     url = "https://www.eventbrite.com/api/v3/destination/search/"
     headers = {
-        "Cookie": "csrftoken=30307aa869a611eda80497a2ad387ead",
+        "Cookie": f"csrftoken={settings.CSRFTOKEN}",
         "Referer": "https://www.eventbrite.com/d/indonesia",
-        "X-CSRFToken": "30307aa869a611eda80497a2ad387ead",
+        "X-CSRFToken": f"{settings.CSRFTOKEN}",
     }
 
     tasks = []

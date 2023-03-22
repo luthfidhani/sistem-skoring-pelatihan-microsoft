@@ -5,6 +5,8 @@ services:
     command: python manage.py runserver 0.0.0.0:8080
     build:
       context: .
+    env_file:
+      - .env
     volumes:
       - .:/app
     ports:
