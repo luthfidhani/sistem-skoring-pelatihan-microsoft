@@ -1,6 +1,7 @@
 import os
 import httpx
 import asyncio
+import tweepy
 import numpy as np # import library numpy untuk perhitungan matematika
 import pandas as pd # import library pandas untuk membaca data 
 from pytrends.request import TrendReq #import library google trend api
@@ -8,6 +9,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer # import library tfi
 from sklearn.metrics.pairwise import cosine_similarity # import library cosin similarity dari sklearn untuk menghitung cosine similaroty
 
 base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__))) # mendapatkan base direcrtory dari project ini
+
+bearer_token="AAAAAAAAAAAAAAAAAAAAACK4NQEAAAAArlTcLIKzcoiLQM7ppMuD6yM55No%3DCdXJteUd154QhX7UCM9nyyzVuLniLCmAbjbMhhjDP3bJd4DsVr"
+
+client = tweepy.Client(bearer_token=bearer_token)
 
 path_event_detail = os.path.abspath(os.path.join(base_dir, "datasets/Event Details.xlsx")) # join bash dir dengan dataset dir file
 df_event_detail = pd.read_excel(path_event_detail).dropna(axis=0) #membuka file excel Event Details.xlsx
@@ -55,13 +60,24 @@ async def get_eventbrite_value(topics):
 
     return values, limit_values * 0.067 #mereturn jumlah event di eventbrite dan limit value dengan dikali dengan 0.067
 
-def get_trending_value(topics):
-    # return 1
-    pytrend = TrendReq() #inisialisasi obyek google trend api
-    pytrend.build_payload(kw_list=topics, cat=0, timeframe='today 12-m') # melakukan pencarian nilai dari query ke google trend api
-    data = pytrend.interest_by_region() # melakukan pencarian by region
+async def get_tweet_count(topic):
+    return client.get_recent_tweets_count(query=topic, granularity='day') # proses untuk mendapatkan nilai dari twitter
 
-    return data.loc["Indonesia"].values.mean() / 100 # mengambil nilai dari negara indonesia kemudian dibagi dengan 100
+
+async def get_trending_value(topics):
+    tasks = [asyncio.create_task(get_tweet_count(query)) for query in topics] # mengeksekusi get_tweet_count secara async dan dijadikan 1 list hasilnya
+    responses = await asyncio.gather(*tasks) # mengkoleksi responses
+    value = (sum([response.meta.get("total_tweet_count") if response.meta.get("total_tweet_count") <= 10000 else 10000 for response in responses])/len(topics)) / 10000 # perhitungan nilai jika nilai diatas 10000 maka dilimit menjadi 10000. kemudian diambil rata-rata dan dibagi 10000
+    results = []
+    for i in range(len(topics)):
+        results.append(
+            {
+                "topic": topics[i],
+                "data": responses[i].data,
+                "total_tweet_count": responses[i].meta.get("total_tweet_count")
+            }
+        ) # hasil dari get_tweet_Count dijadikan dict agar mudah di integrasikan di django templates
+    return value, results
 
 
 def get_cosim_value(learning_outcomes, tittle, query, threshold=0.2): # function cosim dengan parameter corpus dan query
@@ -108,10 +124,10 @@ def train(query, topics):
         mean_cosims.append(mean) # menggabung nilai mean pada setiap perulangan
 
     number_of_eventbrite, eventbrite_value = asyncio.run(get_eventbrite_value(topics)) # request value from eventbrite using async method based on topics
-    trending_value = get_trending_value(topics) # request value from google trending based on topics
+    trending_value, data_trending = asyncio.run(get_trending_value(topics))
     
     # values = [event details, training catalog, trending value, event brite value]
     values = [mean_cosims[0], mean_cosims[1], trending_value, eventbrite_value.mean()] # menggabung kan menjadi 1 list
     values = np.nan_to_num(values) * np.array([4, 4, 2, 2]) # convert NaN value to 0 dan dikali dengan bobotnya 
 
-    return np.sum(values), values, data_cosims, mean_cosims, number_of_eventbrite # mengembalikan jumlah dari rata-rata
+    return np.sum(values), values, data_cosims, mean_cosims, number_of_eventbrite, data_trending # mengembalikan jumlah dari rata-rata

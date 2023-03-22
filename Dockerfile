@@ -1,4 +1,4 @@
-FROM python:3.9 AS base
+FROM python:3.9.16-slim-bullseye AS base
 
 ENV APP_HOME /app
 ENV APP_WORKERS 2

@@ -14,7 +14,7 @@ def analyze(request): # fungsi untuk menganilis data
         topics = request.POST["topics"] # post request dengan value topics
 
         if query and topics:
-            result, mean, cosim_data, mean_cosims, number_of_eventbrite = train(query, topics) #training data
+            result, mean, cosim_data, mean_cosims, number_of_eventbrite, data_trending = train(query, topics) #training data
 
             eventbrite_message = ""
             for topic, eventbrite in zip(topics.split(","), number_of_eventbrite):
@@ -60,7 +60,8 @@ def analyze(request): # fungsi untuk menganilis data
                 "average_cosim_value": mean_cosims,
                 "ahp": ahp,
                 "alert": alert,
-                "message": message
+                "message": message,
+                "data_trending": data_trending,
             } #data dijadikan dict
 
             return render(request, "skoring/index.html", data) # return data ke html dan menampilkan nya di index html
