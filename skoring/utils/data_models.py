@@ -46,7 +46,7 @@ def add_result_history(data):
         "Hasil Katalog": [event[0] for event in data.get("cosim_data")[1]],
         "Skor Katalog": [event[1] for event in data.get("cosim_data")[1]],
         "Hasil Eventbrite": data.get("topics").split(","),
-        "Skor Eventbrite": data.get("number_of_eventbrite"),
+        "Skor Eventbrite": data.get("number_of_eventbrite").tolist(),
         "Hasil Twitter": data.get("topics").split(","),
         "Skor Twitter": [data_twitter.get("total_tweet_count") for data_twitter in data.get("data_trending")],
     }
