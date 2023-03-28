@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt 
 from skoring.utils.ai_models import train
-from skoring.utils.data_models import add_event_detail, add_training_catalog
+from skoring.utils.data_models import add_event_detail, add_training_catalog, add_result_history
 
 
 def index(request):
@@ -62,7 +62,10 @@ def analyze(request): # fungsi untuk menganilis data
                 "alert": alert,
                 "message": message,
                 "data_trending": data_trending,
+                "number_of_eventbrite": number_of_eventbrite,
             } #data dijadikan dict
+
+            add_result_history(data) # simpan hasil ke excel
 
             return render(request, "skoring/index.html", data) # return data ke html dan menampilkan nya di index html
 
