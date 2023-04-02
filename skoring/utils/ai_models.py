@@ -126,7 +126,12 @@ def train(query, topics):
     trending_value, data_trending = asyncio.run(get_trending_value(topics))
     
     # values = [event details, training catalog, trending value, event brite value]
+    bobot = np.array([4, 4, 2, 2])
     values = [mean_cosims[0], mean_cosims[1], trending_value, eventbrite_value.mean()] # menggabung kan menjadi 1 list
-    values = np.nan_to_num(values) * np.array([4, 4, 2, 2]) # convert NaN value to 0 dan dikali dengan bobotnya 
+    values = np.nan_to_num(values) * bobot # convert NaN value to 0 dan dikali dengan bobotnya
+
+    # membatasi values dengan max bobot
+    for i in range(len(values)):
+        values[i] = values[i] if values[i] <= bobot[i] else bobot[i]
 
     return np.sum(values), values, data_cosims, mean_cosims, number_of_eventbrite, data_trending # mengembalikan jumlah dari rata-rata
