@@ -38,6 +38,18 @@ def add_training_catalog(tittle, learning_outcomes):
 
 
 def add_result_history(data):
+
+    # Menformat data treding twitter untuk digabungkan dengan result
+    df = pd.DataFrame(columns=['topic', 'start_date', 'end_date', 'tweet_count'])
+    for item in data.get("data_trending"):    
+        # Loop through each data point
+        i = 0
+        for point in item['data']:       
+            topic = "" if i > 0 else item['topic'] # untuk menformat topik agar di baris selanjutnya tidak ditampilkan "biar rapi". jika i > 0 maka diisi dengan string kosong
+            df = pd.concat([df, pd.DataFrame({'topic': [topic], 'start_date': [point['start']], 'end_date': [point['end']], 'tweet_count': [point['tweet_count']]})], ignore_index=True)
+            i += 1
+        df = pd.concat([df, pd.DataFrame({'topic': "", 'start_date': "", 'end_date': "Total", 'tweet_count': [item["total_tweet_count"]]})], ignore_index=True) #menampilkan total count
+
     result = {
         "Query": [data.get("query")],
         "Topics": [data.get("topics")],
@@ -47,8 +59,10 @@ def add_result_history(data):
         "Skor Katalog": [event[1] for event in data.get("cosim_data")[1]],
         "Hasil Eventbrite": data.get("topics").split(","),
         "Skor Eventbrite": data.get("number_of_eventbrite").tolist(),
-        "Hasil Twitter": data.get("topics").split(","),
-        "Skor Twitter": [data_twitter.get("total_tweet_count") for data_twitter in data.get("data_trending")],
+        "Topik Twitter": df.get("topic").to_numpy(),
+        "Start Date": df.get("start_date").to_numpy(),
+        "End Date": df.get("end_date").to_numpy(),
+        "Tweet Count": df.get("tweet_count").to_numpy(),
     }
 
     # Mendapatkan jumlah maksimum dari semua array
