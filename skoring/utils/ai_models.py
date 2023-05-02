@@ -10,19 +10,22 @@ from sklearn.metrics.pairwise import cosine_similarity # import library cosin si
 from django.conf import settings
 
 base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__))) # mendapatkan base direcrtory dari project ini
+path_event_detail = os.path.abspath(os.path.join(base_dir, "datasets/Event Details.xlsx")) # join bash dir dengan dataset dir file
+path_training_catalog = os.path.abspath(os.path.join(base_dir, "datasets/Training Catalog.xlsx")) # join bash dir dengan dataset dir file
 
 client = tweepy.Client(bearer_token=settings.BEARER_TOKEN)
 
-path_event_detail = os.path.abspath(os.path.join(base_dir, "datasets/Event Details.xlsx")) # join bash dir dengan dataset dir file
-df_event_detail = pd.read_excel(path_event_detail).dropna(axis=0) #membuka file excel Event Details.xlsx
-tittle_event_detail = np.array(df_event_detail)[:,0] # mengambil kolom tittle dan dijadikan array 
-learning_outcome_event_detail = [event_detail.replace('\xa0','') for event_detail in np.array(df_event_detail)[:,1]] #menjadikan dataframe ke array dan menghapus karakter \xa0
+def read_data_source():
+    df_event_detail = pd.read_excel(path_event_detail).dropna(axis=0) #membuka file excel Event Details.xlsx
+    tittle_event_detail = np.array(df_event_detail)[:,0] # mengambil kolom tittle dan dijadikan array 
+    learning_outcome_event_detail = [event_detail.replace('\xa0','') for event_detail in np.array(df_event_detail)[:,1]] #menjadikan dataframe ke array dan menghapus karakter \xa0
 
 
-path_training_catalog = os.path.abspath(os.path.join(base_dir, "datasets/Training Catalog.xlsx")) # join bash dir dengan dataset dir file
-df_training_catalog = pd.read_excel(path_training_catalog).dropna(axis=0) #membuka file excel Event Details.xlsx
-tittle_training_catalog = np.array(df_training_catalog)[:,0] # mengambil kolom tittle dan dijadikan array 
-learning_outcome_training_catalog = np.array(df_training_catalog)[:,1] # mengambil kolom learning outcome dan dijadikan array
+    df_training_catalog = pd.read_excel(path_training_catalog).dropna(axis=0) #membuka file excel Event Details.xlsx
+    tittle_training_catalog = np.array(df_training_catalog)[:,0] # mengambil kolom tittle dan dijadikan array 
+    learning_outcome_training_catalog = np.array(df_training_catalog)[:,1] # mengambil kolom learning outcome dan dijadikan array
+
+    return [learning_outcome_event_detail, learning_outcome_training_catalog], [tittle_event_detail, tittle_training_catalog]
 
 #fungsi untuk melakukan http requests
 async def request_worker(url, json, headers):
@@ -112,8 +115,7 @@ def get_cosim_value(learning_outcomes, tittle, query, threshold=0.2): # function
 
 def train(query, topics):
     topics = topics.split(",") # split topic dengan pemisah ,
-    learning_outcomes = [learning_outcome_event_detail, learning_outcome_training_catalog]
-    tittle = [tittle_event_detail, tittle_training_catalog]
+    learning_outcomes, tittle = read_data_source()
 
     data_cosims = []
     mean_cosims = []
