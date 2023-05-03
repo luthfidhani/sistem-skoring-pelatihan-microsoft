@@ -59,10 +59,10 @@ def add_result_history(data):
         "Skor Katalog": [event[1] for event in data.get("cosim_data")[1]],
         "Hasil Eventbrite": data.get("topics").split(","),
         "Skor Eventbrite": data.get("number_of_eventbrite").tolist(),
-        "Topik Twitter": df.get("topic").to_numpy(),
-        "Start Date": df.get("start_date").to_numpy(),
-        "End Date": df.get("end_date").to_numpy(),
-        "Tweet Count": df.get("tweet_count").to_numpy(),
+        "Topik Twitter": df.get("topic").to_list(),
+        "Start Date": df.get("start_date").to_list(),
+        "End Date": df.get("end_date").to_list(),
+        "Tweet Count": df.get("tweet_count").to_list(),
     }
 
     # Mendapatkan jumlah maksimum dari semua array
