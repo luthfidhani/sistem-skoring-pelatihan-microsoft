@@ -13,7 +13,12 @@ base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__))) # mendapatk
 path_event_detail = os.path.abspath(os.path.join(base_dir, "datasets/Event Details.xlsx")) # join bash dir dengan dataset dir file
 path_training_catalog = os.path.abspath(os.path.join(base_dir, "datasets/Training Catalog.xlsx")) # join bash dir dengan dataset dir file
 
-client = tweepy.Client(bearer_token=settings.BEARER_TOKEN)
+client = tweepy.Client(
+    consumer_key="0Xs4at1o2StWTwdEsbmerrdIU",
+    consumer_secret="WWTypzLksGmP1swLllKNmF8rfMyC9S9cdRevcpPiaYcXKrFCF3",
+    access_token="1368524919252774917-SnBvIpU76DwAw6dmX9B82JRwzCuvXn",
+    access_token_secret="Fw2qQaFEQseGa9jzlgynfB5MRikWZVwigWFHWEy2CXNCS"
+)
 
 def read_data_source():
     df_event_detail = pd.read_excel(path_event_detail).dropna(axis=0) #membuka file excel Event Details.xlsx
@@ -66,20 +71,18 @@ async def get_tweet_count(topic):
     return client.get_recent_tweets_count(query=topic, granularity='day') # proses untuk mendapatkan nilai dari twitter
 
 
-async def get_trending_value(topics):
-    tasks = [asyncio.create_task(get_tweet_count(query)) for query in topics] # mengeksekusi get_tweet_count secara async dan dijadikan 1 list hasilnya
-    responses = await asyncio.gather(*tasks) # mengkoleksi responses
-    value = (sum([response.meta.get("total_tweet_count") if response.meta.get("total_tweet_count") <= 10000 else 10000 for response in responses])/len(topics)) / 10000 # perhitungan nilai jika nilai diatas 10000 maka dilimit menjadi 10000. kemudian diambil rata-rata dan dibagi 10000
-    results = []
-    for i in range(len(topics)):
-        results.append(
-            {
-                "topic": topics[i],
-                "data": responses[i].data,
-                "total_tweet_count": responses[i].meta.get("total_tweet_count")
-            }
-        ) # hasil dari get_tweet_Count dijadikan dict agar mudah di integrasikan di django templates
-    return value, results
+def get_trending_value(topics):
+    return 1, (('google drive', 58), ('google cloud platform', 18), ('microsoft azure', 7), ('chatgpt', 3), ('gpt-4', 2))
+    data_trends = []
+    for topic in topics:
+      pytrend = TrendReq() #inisialisasi obyek google trend api
+      pytrend.build_payload(kw_list=[topic], cat=0, timeframe='today 12-m') # melakukan pencarian nilai dari query ke google trend api
+      data = pytrend.interest_by_region() # melakukan pencarian by region
+      data_trends.append(data.loc["Indonesia"].to_dict())
+    # Menghitung rata-rata
+    average = (sum([list(data_trend.values())[0] for data_trend in data_trends]) / len(data_trends)) / 100
+    data_trends = ((list(data_trend.keys())[0], list(data_trend.values())[0]) for data_trend in data_trends)
+    return average, data_trends
 
 
 def get_cosim_value(learning_outcomes, tittle, query, threshold=0.2): # function cosim dengan parameter corpus dan query
@@ -125,7 +128,7 @@ def train(query, topics):
         mean_cosims.append(mean) # menggabung nilai mean pada setiap perulangan
 
     number_of_eventbrite, eventbrite_value = asyncio.run(get_eventbrite_value(topics)) # request value from eventbrite using async method based on topics
-    trending_value, data_trending = asyncio.run(get_trending_value(topics))
+    trending_value, data_trending = get_trending_value(topics)
     
     # values = [event details, training catalog, trending value, event brite value]
     bobot = np.array([4, 4, 2, 2])

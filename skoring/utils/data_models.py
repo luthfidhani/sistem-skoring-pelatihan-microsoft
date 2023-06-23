@@ -38,18 +38,6 @@ def add_training_catalog(tittle, learning_outcomes):
 
 
 def add_result_history(data):
-
-    # Menformat data treding twitter untuk digabungkan dengan result
-    df = pd.DataFrame(columns=['topic', 'start_date', 'end_date', 'tweet_count'])
-    for item in data.get("data_trending"):    
-        # Loop through each data point
-        i = 0
-        for point in item['data']:       
-            topic = "" if i > 0 else item['topic'] # untuk menformat topik agar di baris selanjutnya tidak ditampilkan "biar rapi". jika i > 0 maka diisi dengan string kosong
-            df = pd.concat([df, pd.DataFrame({'topic': [topic], 'start_date': [point['start']], 'end_date': [point['end']], 'tweet_count': [point['tweet_count']]})], ignore_index=True)
-            i += 1
-        df = pd.concat([df, pd.DataFrame({'topic': "", 'start_date': "", 'end_date': "Total", 'tweet_count': [item["total_tweet_count"]]})], ignore_index=True) #menampilkan total count
-
     result = {
         "Query": [data.get("query")],
         "Topics": [data.get("topics")],
@@ -59,10 +47,8 @@ def add_result_history(data):
         "Skor Katalog": [event[1] for event in data.get("cosim_data")[1]],
         "Hasil Eventbrite": data.get("topics").split(","),
         "Skor Eventbrite": data.get("number_of_eventbrite").tolist(),
-        "Topik Twitter": df.get("topic").to_list(),
-        "Start Date": df.get("start_date").to_list(),
-        "End Date": df.get("end_date").to_list(),
-        "Tweet Count": df.get("tweet_count").to_list(),
+        "Topik Google Trend": [topic for topic, _ in data.get("data_trending").get("data")],
+        "Hasil Google Trend": [value for _, value in data.get("data_trending").get("data")],
     }
 
     # Mendapatkan jumlah maksimum dari semua array
@@ -72,5 +58,7 @@ def add_result_history(data):
     for key in result:
         if isinstance(result[key], list) and len(result[key]) < max_len:
             result[key].extend([""] * (max_len - len(result[key])))
-
-    save_to_excel(path_result_history, pd.DataFrame(result)) # menyimpan data ke excel
+    try:
+        save_to_excel(path_result_history, pd.DataFrame(result)) # menyimpan data ke excel
+    except Exception as exc:
+        print(exc)

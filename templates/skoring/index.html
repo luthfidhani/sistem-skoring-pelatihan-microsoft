@@ -119,56 +119,43 @@
                                   {% endfor %}
                                 </tbody>
                                 <thead class="table-secondary">
+                                    <tr>
+                                      <th scope="col">Average</th>
+                                      <th scope="col">{{average_cosim_value.1}}</th>
+                                    </tr>
+                                </thead>
+                                <thead class="table-secondary">
                                   <tr>
-                                    <th scope="col">Average</th>
-                                    <th scope="col">{{average_cosim_value.1}}</th>
+                                    <th scope="col">Total = average * 3 (max 4)</th>
+                                    <th scope="col">{{ mean.1 }}</th>
                                   </tr>
-                              </thead>
-                              <thead class="table-secondary">
-                                <tr>
-                                  <th scope="col">Total = average * 3 (max 4)</th>
-                                  <th scope="col">{{ mean.1 }}</th>
-                                </tr>
-                              </thead>
+                                </thead>
                               </table>
 
                               <br>
-                              <h5>Twitter Trending Details:</h5>
+                              <h5>Google Trending Details:</h5>
                               <table class="table">
                                 <thead>
-                                  <tr>
-                                    <th>Topics</th>
-                                    <th>End</th>
-                                    <th>Start</th>
-                                    <th>Tweet Count</th>
-                                  </tr>
+                                  {% for topic, value in data_trending.data %}
+                                    <tr>
+                                      <td>{{ topic }}</td>
+                                      <td>{{ value }}</td>
+                                    </tr>
+                                  {% endfor %}
                                 </thead>
                                 <tbody>
-                                  {% for result in data_trending %}
+                                  <thead class="table-secondary">
                                     <tr>
-                                      <td rowspan="9">{{ result.topic }}</td>
-                                      <td>{{ result.data.0.end }}</td>
-                                      <td>{{ result.data.0.start }}</td>
-                                      <td>{{ result.data.0.tweet_count }}</td>
+                                      <th scope="col">Average</th>
+                                      <th scope="col">{{data_trending.average}}</th>
                                     </tr>
-                                    {% for data in result.data %}
-                                    {% if data.end != result.data.0.end %}
-                                      <tr>
-                                        <td>{{ data.end }}</td>
-                                        <td>{{ data.start }}</td>
-                                        <td>{{ data.tweet_count }}</td>
-                                      </tr>
-                                    {% endif %}
-                                    {% endfor %}
-                                    <thead class="table-secondary">
-                                      <tr>
-                                        <td></td>
-                                        <th scope="col">Total Tweet Count</th>
-                                        <td></td>
-                                        <th scope="col">{{ result.total_tweet_count }}</th>
-                                      </tr>
-                                    </thead>
-                                  {% endfor %}
+                                </thead>
+                                <thead class="table-secondary">
+                                  <tr>
+                                    <th scope="col">Total = (average / 100) * 2 (max 2)</th>
+                                    <th scope="col">{{ data_trending.total_percentage }}</th>
+                                  </tr>
+                                </thead>
                                 </tbody>
                               </table>
                               

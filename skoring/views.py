@@ -16,6 +16,11 @@ def analyze(request): # fungsi untuk menganilis data
         if query and topics:
             result, mean, cosim_data, mean_cosims, number_of_eventbrite, data_trending = train(query, topics) #training data
 
+            data_trending = list(data_trending)
+            total_data_trending = sum([value for topic, value in data_trending])
+            average_data_trending = total_data_trending / len(data_trending)
+            total_percentage_data_trending = average_data_trending / 100 * 2
+
             eventbrite_message = ""
             for topic, eventbrite in zip(topics.split(","), number_of_eventbrite):
                 eventbrite_message = eventbrite_message + f" topik {topic} berjumlah {eventbrite} event, "
@@ -61,7 +66,11 @@ def analyze(request): # fungsi untuk menganilis data
                 "ahp": ahp,
                 "alert": alert,
                 "message": message,
-                "data_trending": data_trending,
+                "data_trending": {
+                    "data": list(data_trending),
+                    "average": average_data_trending,
+                    "total_percentage": total_percentage_data_trending,
+                },
                 "number_of_eventbrite": number_of_eventbrite,
             } #data dijadikan dict
 
