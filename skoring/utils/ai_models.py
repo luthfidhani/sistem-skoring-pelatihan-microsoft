@@ -72,7 +72,6 @@ async def get_tweet_count(topic):
 
 
 def get_trending_value(topics):
-    return 1, (('google drive', 58), ('google cloud platform', 18), ('microsoft azure', 7), ('chatgpt', 3), ('gpt-4', 2))
     data_trends = []
     for topic in topics:
       pytrend = TrendReq() #inisialisasi obyek google trend api
