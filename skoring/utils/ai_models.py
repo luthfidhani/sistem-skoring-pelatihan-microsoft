@@ -130,7 +130,7 @@ def train(query, topics):
     trending_value, data_trending = get_trending_value(topics)
     
     # values = [event details, training catalog, trending value, event brite value]
-    bobot = np.array([4, 4, 2, 2])
+    bobot = np.array([7, 5, 3, 1])
     values = [mean_cosims[0], mean_cosims[1], trending_value, eventbrite_value.mean()] # menggabung kan menjadi 1 list
     values = np.nan_to_num(values) * bobot # convert NaN value to 0 dan dikali dengan bobotnya
 

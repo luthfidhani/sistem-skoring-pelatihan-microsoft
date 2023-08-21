@@ -26,7 +26,7 @@ def analyze(request): # fungsi untuk menganilis data
                 eventbrite_message = eventbrite_message + f" topik {topic} berjumlah {eventbrite} event, "
 
             # Cek AHP
-            if result >= 8:
+            if result >= 10:
                 ahp = "Sangat direkomendasikan"
                 alert = "alert alert-success"
                 message = f'''
@@ -36,7 +36,7 @@ def analyze(request): # fungsi untuk menganilis data
                     Sedangkan Google Trend mengambarkan topik tersebut mendapat nilai {mean[2]} dan terdapat {eventbrite_message} event di Evenbrite. 
                     Oleh karena itu,<b> pelatihan tersebut sangat direkomendasikan. </b>
                 '''
-            elif result >= 4:
+            elif result >= 5 :
                 ahp = "Bisa dicoba"
                 alert = "alert alert-primary"
                 message = f'''
